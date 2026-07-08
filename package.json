@@ -1,0 +1,18 @@
+{
+  "name": "bellona-discord-bot-production-v3-2-1-auto-recovery",
+  "version": "3.2.1",
+  "description": "BELLONA Discord Bot v3.2.1 - auto recovery for Discord gateway disconnects",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.19.2",
+    "firebase-admin": "^13.0.1"
+  }
+}
