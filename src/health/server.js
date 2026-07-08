@@ -1,32 +1,17 @@
 const express = require('express');
 const { env } = require('../config/env');
 const { logger } = require('../logger/logger');
-const { getStatus } = require('../state/runtimeStatus');
 
-function startHealthServer(client) {
+function startHealthServer() {
   const app = express();
 
-  app.get('/', (_, res) => {
-    const status = getStatus(client);
-    res.status(status.discord.ready ? 200 : 503).json({
-      service: 'BELLONA Discord Bot',
-      version: '3.2.1',
-      status: status.discord.ready ? 'ok' : 'degraded',
-      discord: status.discord,
-      uptimeSeconds: status.uptimeSeconds,
-    });
-  });
-
-  app.get('/health', (_, res) => {
-    const status = getStatus(client);
-    res.status(status.discord.ready ? 200 : 503).json({
-      ok: status.discord.ready,
-      service: 'bellona-discord-bot',
-      version: '3.2.1',
-      uptimeSeconds: status.uptimeSeconds,
-      discord: status.discord,
-    });
-  });
+  app.get('/', (_, res) => res.send('BELLONA Discord Bot Production v3.1.2 is running'));
+  app.get('/health', (_, res) => res.json({
+    ok: true,
+    service: 'bellona-discord-bot',
+    version: '3.1.2',
+    uptimeSeconds: Math.floor(process.uptime())
+  }));
 
   app.listen(env.port, () => logger.info(`Health server started on port ${env.port}`));
 }

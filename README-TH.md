@@ -132,50 +132,28 @@ firebase-admin.json
 - หลัง Admin กด Approve/Reject การ์ด Admin จะเปลี่ยนสถานะ ลบปุ่ม และลบข้อความอัตโนมัติใน 5 วินาที
 
 
-## v3.2 Stability Update
+## v3.1.1 Stable Rollback
 
-เพิ่มระบบตรวจสอบ Discord Gateway เพื่อวิเคราะห์อาการ Render ยัง Live แต่บอท Offline
+ใช้สำหรับกู้ระบบกลับไปยัง Core ที่ใช้งานได้จริงก่อนเพิ่ม Stability/Auto Recovery
 
-เพิ่ม:
-- ล็อก Node เป็น `20.x`
-- เปลี่ยน event จาก `ready` เป็น `clientReady`
-- Gateway Logger: shardReady, shardReconnecting, shardResume, shardDisconnect, shardError
-- Heartbeat Log ทุก 60 วินาที
-- Health Endpoint ตรวจ Discord จริงที่ `/health`
-
-หลัง Deploy ให้เปิด:
-`https://bellona-discord-bot.onrender.com/health`
-
-ถ้า Discord ต่ออยู่จะได้ `ok: true`
-ถ้า Web ยัง Live แต่ Discord หลุดจะได้ `ok: false`
+สิ่งที่ทำ:
+- ล็อก Node เป็น 20.x
+- เอา Auto Recovery / Startup Timeout ออก
+- ใช้ Flow เดิมของ Member Module v3.1
+- คงระบบสมัครสมาชิก / เปลี่ยนชื่อ / เปลี่ยนอาชีพ / Admin Approve / DM / Duplicate Guard
 
 
-## v3.2.1 Auto Recovery
+## v3.1.2 Ready Event Fix
 
-เพิ่มระบบ Self-Healing สำหรับกรณี Render ยัง Live แต่ Discord Bot Offline
+แก้ปัญหา v3.1.1 ไม่ขึ้น Log:
+`BELLONA Bot logged in as ...`
 
-### หลักการ
-- ตรวจ `client.isReady()` ทุก 30 วินาที
-- ถ้าไม่ Ready ต่อเนื่อง 4 รอบ หรือประมาณ 2 นาที:
-  - destroy client
-  - รอ 5 วินาที
-  - login ใหม่
-- ถ้า recovery ไม่สำเร็จครบ 3 ครั้ง:
-  - process.exit(1)
-  - ให้ Render restart service อัตโนมัติ
+สาเหตุ:
+- โปรเจกต์ใช้ discord.js v14
+- v14 ยังใช้ event `ready`
+- v3.1.1 ใช้ `clientReady` ทำให้ callback ไม่ทำงาน
 
-### Logs ที่จะเห็น
-```text
-Discord client not ready detected
-Discord auto recovery started
-Discord auto recovery login requested
-Max auto recovery attempts reached. Exiting process so Render can restart service.
-```
-
-### ใช้ร่วมกับ UptimeRobot
-ตั้ง UptimeRobot ยิง:
-```text
-https://bellona-discord-bot.onrender.com/health
-```
-
-ทุก 5 นาทีได้เลย
+สิ่งที่แก้:
+- เปลี่ยนกลับเป็น `client.once('ready', ...)`
+- คง Node 20.x
+- ไม่แตะระบบสมาชิก / Firebase / Approval
